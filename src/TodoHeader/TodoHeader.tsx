@@ -9,6 +9,7 @@ interface TodoHeaderProps {
   handleAddTodo: (event: React.FormEvent) => void;
   inputRef: React.RefObject<HTMLInputElement>;
   isSubmitting: boolean;
+  toggleAllTodos: () => void;
 }
 
 export const TodoHeader: React.FC<TodoHeaderProps> = ({
@@ -18,6 +19,7 @@ export const TodoHeader: React.FC<TodoHeaderProps> = ({
   handleAddTodo,
   inputRef,
   isSubmitting,
+  toggleAllTodos,
 }) => {
   return (
     <header className="todoapp__header">
@@ -28,6 +30,7 @@ export const TodoHeader: React.FC<TodoHeaderProps> = ({
             active: todos.every(todo => todo.completed) ? 'is-active' : '',
           })}
           data-cy="ToggleAllButton"
+          onClick={toggleAllTodos}
         />
       )}
 

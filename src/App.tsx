@@ -183,6 +183,22 @@ export const App: React.FC = () => {
     addTodo({ title: newTodosTitle, userId: USER_ID, completed: false });
   };
 
+  const toggleAllTodos = () => {
+    const areAllCompleted = todos.every(todo => todo.completed);
+    const updatedTodos = todos.map(todo => ({
+      ...todo,
+      completed: !areAllCompleted,
+    }));
+
+    setTodos(updatedTodos);
+
+    updatedTodos.forEach(todo => {
+      updateTodos(todo).catch(() => {
+        setErrorMessage('Unable to update todos');
+      });
+    });
+  };
+
   const filteredTodos = getFilteredTodos(todos, filter);
 
   return (
@@ -190,12 +206,13 @@ export const App: React.FC = () => {
       <h1 className="todoapp__title">todos</h1>
       <div className="todoapp__content">
         <TodoHeader
-          todos={filteredTodos}
+          todos={todos}
           newTodosTitle={newTodosTitle}
           setNewTodos={setNewTodosTitle}
           handleAddTodo={handleAddTodo}
           inputRef={inputRef}
           isSubmitting={isSubmitting}
+          toggleAllTodos={toggleAllTodos}
         />
         <TodoList
           todos={filteredTodos}
