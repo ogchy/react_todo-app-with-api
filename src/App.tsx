@@ -184,18 +184,36 @@ export const App: React.FC = () => {
   };
 
   const toggleAllTodos = () => {
-    const areAllCompleted = todos.every(todo => todo.completed);
-    const updatedTodos = todos.map(todo => ({
-      ...todo,
-      completed: !areAllCompleted,
-    }));
+    const allCompleted = todos.every(todo => todo.completed);
+    const newStatus = !allCompleted;
+    const updatedTodos: Todo[] = [];
 
-    setTodos(updatedTodos);
+    todos.forEach(todo => {
+      if (todo.completed === newStatus) {
+        return;
+      }
 
-    updatedTodos.forEach(todo => {
-      updateTodos(todo).catch(() => {
-        setErrorMessage('Unable to update todos');
+      updatedTodos.push({
+        ...todo,
+        completed: newStatus,
       });
+    });
+    updatedTodos.forEach(todo => {
+      updateTodos(todo)
+        .then(todoEach => {
+          setTodos(prevTodos =>
+            prevTodos.map(prevTodo => {
+              if (prevTodo.id === todoEach.id) {
+                return todoEach;
+              }
+
+              return prevTodo;
+            }),
+          );
+        })
+        .catch(() => {
+          setErrorMessage('Unable to update todos');
+        });
     });
   };
 

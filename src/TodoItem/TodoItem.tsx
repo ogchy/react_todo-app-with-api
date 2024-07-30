@@ -1,6 +1,6 @@
 /* eslint-disable jsx-a11y/label-has-associated-control */
 import classNames from 'classnames';
-import React from 'react';
+import React, { useRef } from 'react';
 import { Todo } from '../types/Todo';
 
 interface TodoItemProps {
@@ -27,6 +27,16 @@ export const TodoItem: React.FC<TodoItemProps> = ({
   editingTitle,
 }) => {
   const isEditing = editingTodoId === todo.id;
+  const inputElement = useRef<HTMLInputElement>(null);
+
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    updateTodo({
+      ...todo,
+      title: editingTitle,
+    });
+    setEditingTodoId(null);
+  };
 
   return (
     <div
@@ -35,59 +45,68 @@ export const TodoItem: React.FC<TodoItemProps> = ({
         completed: todo.completed,
       })}
     >
-      <label className="todo__status-label">
-        <input
-          data-cy="TodoStatus"
-          type="checkbox"
-          className="todo__status"
-          checked={todo.completed}
-          onChange={() => toggleTodoCompleted(todo.id)}
-        />
-      </label>
+      {!isEditing && (
+        <label className="todo__status-label">
+          <input
+            data-cy="TodoStatus"
+            type="checkbox"
+            className="todo__status"
+            checked={todo.completed}
+            onChange={() => toggleTodoCompleted(todo.id)}
+          />
+        </label>
+      )}
       {isEditing ? (
-        <input
-          type="text"
-          className="todo__title"
-          value={editingTitle}
-          onChange={e => setEditingTitle(e.target.value)}
-          onBlur={() => {
-            updateTodo({
-              ...todo,
-              title: editingTitle,
-            });
-            setEditingTodoId(null);
-          }}
-          onKeyDown={e => {
-            if (e.key === 'Enter') {
+        <form onSubmit={handleSubmit}>
+          <input
+            data-cy="TodoTitleField"
+            type="text"
+            className="todo__title-field"
+            placeholder="Empty todo will be deleted"
+            value={editingTitle}
+            onChange={e => setEditingTitle(e.target.value)}
+            ref={inputElement}
+            autoFocus
+            onBlur={() => {
               updateTodo({
                 ...todo,
                 title: editingTitle,
               });
               setEditingTodoId(null);
-            }
-          }}
-          autoFocus
-        />
+            }}
+            onKeyDown={e => {
+              if (e.key === 'Enter') {
+                updateTodo({
+                  ...todo,
+                  title: editingTitle,
+                });
+                setEditingTodoId(null);
+              }
+            }}
+          />
+        </form>
       ) : (
-        <span
-          data-cy="TodoTitle"
-          className="todo__title"
-          onDoubleClick={() => {
-            setEditingTodoId(todo.id);
-            setEditingTitle(todo.title);
-          }}
-        >
-          {todo.title}
-        </span>
+        <>
+          <span
+            data-cy="TodoTitle"
+            className="todo__title"
+            onDoubleClick={() => {
+              setEditingTodoId(todo.id);
+              setEditingTitle(todo.title);
+            }}
+          >
+            {todo.title}
+          </span>
+          <button
+            type="button"
+            className="todo__remove"
+            data-cy="TodoDelete"
+            onClick={() => deleteTodo(todo.id)}
+          >
+            ×
+          </button>
+        </>
       )}
-      <button
-        type="button"
-        className="todo__remove"
-        data-cy="TodoDelete"
-        onClick={() => deleteTodo(todo.id)}
-      >
-        ×
-      </button>
       <div
         data-cy="TodoLoader"
         className={classNames('modal overlay', {
