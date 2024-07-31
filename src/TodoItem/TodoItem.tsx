@@ -1,6 +1,6 @@
 /* eslint-disable jsx-a11y/label-has-associated-control */
 import classNames from 'classnames';
-import React, { useRef } from 'react';
+import React, { useRef, useState } from 'react';
 import { Todo } from '../types/Todo';
 
 interface TodoItemProps {
@@ -28,14 +28,46 @@ export const TodoItem: React.FC<TodoItemProps> = ({
 }) => {
   const isEditing = editingTodoId === todo.id;
   const inputElement = useRef<HTMLInputElement>(null);
+  const [hasUpdated, setHasUpdated] = useState(false);
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    updateTodo({
-      ...todo,
-      title: editingTitle,
-    });
-    setEditingTodoId(null);
+    if (!hasUpdated) {
+      updateTodo({
+        ...todo,
+        title: editingTitle.trim(),
+      });
+      setEditingTodoId(null);
+      setHasUpdated(true);
+    }
+  };
+
+  const handleBlur = () => {
+    if (!hasUpdated) {
+      updateTodo({
+        ...todo,
+        title: editingTitle.trim(),
+      });
+      setEditingTodoId(null);
+      setHasUpdated(true);
+    }
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      if (!hasUpdated) {
+        updateTodo({
+          ...todo,
+          title: editingTitle.trim(),
+        });
+        setEditingTodoId(null);
+        setHasUpdated(true);
+      }
+    } else if (e.key === 'Escape') {
+      setEditingTodoId(null);
+      setEditingTitle(todo.title);
+    }
   };
 
   return (
@@ -45,17 +77,15 @@ export const TodoItem: React.FC<TodoItemProps> = ({
         completed: todo.completed,
       })}
     >
-      {!isEditing && (
-        <label className="todo__status-label">
-          <input
-            data-cy="TodoStatus"
-            type="checkbox"
-            className="todo__status"
-            checked={todo.completed}
-            onChange={() => toggleTodoCompleted(todo.id)}
-          />
-        </label>
-      )}
+      <label className="todo__status-label">
+        <input
+          data-cy="TodoStatus"
+          type="checkbox"
+          className="todo__status"
+          checked={todo.completed}
+          onChange={() => toggleTodoCompleted(todo.id)}
+        />
+      </label>
       {isEditing ? (
         <form onSubmit={handleSubmit}>
           <input
@@ -67,22 +97,8 @@ export const TodoItem: React.FC<TodoItemProps> = ({
             onChange={e => setEditingTitle(e.target.value)}
             ref={inputElement}
             autoFocus
-            onBlur={() => {
-              updateTodo({
-                ...todo,
-                title: editingTitle,
-              });
-              setEditingTodoId(null);
-            }}
-            onKeyDown={e => {
-              if (e.key === 'Enter') {
-                updateTodo({
-                  ...todo,
-                  title: editingTitle,
-                });
-                setEditingTodoId(null);
-              }
-            }}
+            onBlur={handleBlur}
+            onKeyDown={handleKeyDown}
           />
         </form>
       ) : (
@@ -93,6 +109,7 @@ export const TodoItem: React.FC<TodoItemProps> = ({
             onDoubleClick={() => {
               setEditingTodoId(todo.id);
               setEditingTitle(todo.title);
+              setHasUpdated(false);
             }}
           >
             {todo.title}
