@@ -12,7 +12,7 @@ interface TodoListProps {
   toggleTodoCompleted: (todoId: number) => void;
   setEditingTodoId: (todoId: number | null) => void;
   setEditingTitle: (title: string) => void;
-  updateTodo: (todo: Todo) => void;
+  updateTodo: (todo: Todo) => Promise<void>;
   editingTodoId: number | null;
   editingTitle: string;
 }
@@ -42,6 +42,7 @@ export const TodoList: React.FC<TodoListProps> = ({
               setEditingTodoId={setEditingTodoId}
               setEditingTitle={setEditingTitle}
               updateTodo={updateTodo}
+              setErrorMessage={() => {}}
               editingTodoId={editingTodoId}
               editingTitle={editingTitle}
             />
@@ -56,7 +57,8 @@ export const TodoList: React.FC<TodoListProps> = ({
               toggleTodoCompleted={() => {}}
               setEditingTodoId={() => {}}
               setEditingTitle={() => {}}
-              updateTodo={() => {}}
+              updateTodo={() => Promise.resolve()}
+              setErrorMessage={() => {}}
               editingTodoId={null}
               editingTitle={''}
             />

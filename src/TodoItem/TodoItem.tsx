@@ -10,9 +10,10 @@ interface TodoItemProps {
   toggleTodoCompleted: (todoId: number) => void;
   setEditingTodoId: (todoId: number | null) => void;
   setEditingTitle: (title: string) => void;
-  updateTodo: (todo: Todo) => void;
+  updateTodo: (todo: Todo) => Promise<void>;
   editingTodoId: number | null;
   editingTitle: string;
+  setErrorMessage: (message: string) => void;
 }
 
 export const TodoItem: React.FC<TodoItemProps> = ({
@@ -25,6 +26,7 @@ export const TodoItem: React.FC<TodoItemProps> = ({
   updateTodo,
   editingTodoId,
   editingTitle,
+  setErrorMessage,
 }) => {
   const isEditing = editingTodoId === todo.id;
   const inputElement = useRef<HTMLInputElement>(null);
@@ -36,9 +38,14 @@ export const TodoItem: React.FC<TodoItemProps> = ({
       updateTodo({
         ...todo,
         title: editingTitle.trim(),
-      });
-      setEditingTodoId(null);
-      setHasUpdated(true);
+      })
+        .then(() => {
+          setHasUpdated(true);
+        })
+        .catch(() => {
+          setErrorMessage('Failed to update todo');
+          setEditingTodoId(null);
+        });
     }
   };
 
@@ -47,9 +54,14 @@ export const TodoItem: React.FC<TodoItemProps> = ({
       updateTodo({
         ...todo,
         title: editingTitle.trim(),
-      });
-      setEditingTodoId(null);
-      setHasUpdated(true);
+      })
+        .then(() => {
+          setHasUpdated(true);
+        })
+        .catch(() => {
+          setErrorMessage('Failed to update todo');
+          setEditingTodoId(null);
+        });
     }
   };
 
@@ -60,9 +72,14 @@ export const TodoItem: React.FC<TodoItemProps> = ({
         updateTodo({
           ...todo,
           title: editingTitle.trim(),
-        });
-        setEditingTodoId(null);
-        setHasUpdated(true);
+        })
+          .then(() => {
+            setHasUpdated(true);
+          })
+          .catch(() => {
+            setErrorMessage('Failed to update todo');
+            setEditingTodoId(null);
+          });
       }
     } else if (e.key === 'Escape') {
       setEditingTodoId(null);

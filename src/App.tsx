@@ -97,9 +97,10 @@ export const App: React.FC = () => {
       });
   }
 
-  function updateTodoo(updatedTodo: Todo) {
+  function updateTodoo(updatedTodo: Todo): Promise<void> {
     setLoadingTodoId(prevIds => [...prevIds, updatedTodo.id]);
-    updateTodos(updatedTodo)
+
+    return updateTodos(updatedTodo)
       .then(() => {
         setTodos(currentTodos => {
           const newTodos = [...currentTodos];
