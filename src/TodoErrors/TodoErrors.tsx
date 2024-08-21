@@ -1,15 +1,21 @@
 import classNames from 'classnames';
-import React from 'react';
-
+import React, { useEffect } from 'react';
 interface TodoErrorsProps {
   errorMessage: string;
   setErrorMessage: (value: string) => void;
 }
-
 export const TodoErrors: React.FC<TodoErrorsProps> = ({
   errorMessage,
   setErrorMessage,
 }) => {
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setErrorMessage('');
+    }, 3000);
+
+    return () => clearTimeout(timer);
+  }, [errorMessage, setErrorMessage]);
+
   return (
     <div
       data-cy="ErrorNotification"

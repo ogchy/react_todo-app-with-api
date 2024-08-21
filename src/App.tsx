@@ -24,33 +24,12 @@ export const App: React.FC = () => {
   const inputRef = useRef<HTMLInputElement>(null);
   const [fakeTodo, setFakeTodo] = useState<Todo | null>(null);
   const [loadingTodoId, setLoadingTodoId] = useState<number[]>([]);
-  const [editingTodoId, setEditingTodoId] = useState<number | null>(null);
-  const [editingTitle, setEditingTitle] = useState<string>('');
 
   useEffect(() => {
     getTodos()
       .then(setTodos)
       .catch(() => setErrorMessage('Unable to load todos'));
   }, []);
-
-  useEffect(() => {
-    if (errorMessage) {
-      const timer = setTimeout(() => {
-        setErrorMessage('');
-      }, 3000);
-
-      return () => clearTimeout(timer);
-    }
-
-    return undefined;
-  }, [errorMessage]);
-
-  useEffect(() => {
-    if (inputRef.current) {
-      inputRef.current.focus();
-    }
-  }, [todos, errorMessage]);
-
   if (!USER_ID) {
     return <UserWarning />;
   }
@@ -111,8 +90,9 @@ export const App: React.FC = () => {
           return newTodos;
         });
       })
-      .catch(() => {
-        setErrorMessage('Unable to update todo');
+      .catch(error => {
+        setErrorMessage('Unable to update a todo');
+        throw error;
       })
       .finally(() => {
         setLoadingTodoId(prevIds =>
@@ -136,29 +116,6 @@ export const App: React.FC = () => {
         setLoadingTodoId(prevIds => prevIds.filter(id => id !== todoId));
       });
   }
-
-  const toggleTodoCompleted = (todoId: number) => {
-    const todo = todos.find(t => t.id === todoId);
-
-    if (todo) {
-      const updateTodo = { ...todo, completed: !todo.completed };
-
-      setLoadingTodoId(prevIds => [...prevIds, todoId]);
-
-      updateTodos(updateTodo)
-        .then(() => {
-          setTodos(currentTodos =>
-            currentTodos.map(t => (t.id === todoId ? updateTodo : t)),
-          );
-        })
-        .catch(() => {
-          setErrorMessage('Unable to update a todo');
-        })
-        .finally(() => {
-          setLoadingTodoId(prevIds => prevIds.filter(id => id !== todoId));
-        });
-    }
-  };
 
   const deleteCompletedTodos = () => {
     const completedTodos = todos.filter(todo => todo.completed);
@@ -238,12 +195,8 @@ export const App: React.FC = () => {
           deleteTodo={deleteTodo}
           fakeTodo={fakeTodo}
           loadingTodoId={loadingTodoId}
-          toggleTodoCompleted={toggleTodoCompleted}
-          setEditingTitle={setEditingTitle}
-          setEditingTodoId={setEditingTodoId}
           updateTodo={updateTodoo}
-          editingTodoId={editingTodoId}
-          editingTitle={editingTitle}
+          errorMessage={errorMessage}
         />
         {!!todos.length && (
           <TodoFooter

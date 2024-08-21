@@ -1,7 +1,6 @@
 import classNames from 'classnames';
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Todo } from '../types/Todo';
-
 interface TodoHeaderProps {
   todos: Todo[];
   newTodosTitle: string;
@@ -11,7 +10,6 @@ interface TodoHeaderProps {
   isSubmitting: boolean;
   toggleAllTodos: () => void;
 }
-
 export const TodoHeader: React.FC<TodoHeaderProps> = ({
   todos,
   newTodosTitle,
@@ -21,6 +19,12 @@ export const TodoHeader: React.FC<TodoHeaderProps> = ({
   isSubmitting,
   toggleAllTodos,
 }) => {
+  useEffect(() => {
+    if (inputRef.current) {
+      inputRef.current.focus();
+    }
+  }, [todos, isSubmitting]);
+
   return (
     <header className="todoapp__header">
       {todos.length > 0 && (
@@ -33,7 +37,6 @@ export const TodoHeader: React.FC<TodoHeaderProps> = ({
           onClick={toggleAllTodos}
         />
       )}
-
       {/* Add a todo on form submit */}
       <form onSubmit={handleAddTodo}>
         <input
